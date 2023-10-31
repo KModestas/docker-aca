@@ -1,0 +1,24 @@
+FROM node:14-alpine as build
+
+WORKDIR /app
+
+COPY package.json .
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+FROM nginx:stable-alpine
+
+# copy static assets into default folder which nginx will server static files from
+COPY --from=build /app/build /usr/share/nginx/html
+
+EXPOSE 80
+
+# start nginx server
+CMD ["nginx", "-g", "daemon off;"]
+
+
+
