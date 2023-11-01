@@ -75,8 +75,14 @@ app.delete('/goals/:id', async (req, res) => {
   }
 });
 
-mongoose.connect(
-  `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_URL}/${process.env.MONGODB_NAME}?retryWrites=true&w=majority`,
+
+const { NODE_ENV, MONGODB_USERNAME, MONGODB_PASSWORD, MONGODB_URL, MONGODB_NAME } = process.env
+
+const mongoUri = NODE_ENV === 'development' ?
+  `mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_URL}/${MONGODB_NAME}?authSource=admin` :
+  `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_URL}/${MONGODB_NAME}?retryWrites=true&w=majority`
+
+mongoose.connect(mongoUri,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -86,7 +92,7 @@ mongoose.connect(
       console.error('FAILED TO CONNECT TO MONGODB');
       console.error(err);
     } else {
-      console.log('CONNECTED TO MONGODB!!');
+      console.log('CONNECTED TO MONGODB!');
       app.listen(80);
     }
   }
