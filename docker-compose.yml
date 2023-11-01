@@ -1,21 +1,45 @@
-version: '3.8'
+version: "3.8"
 services:
+  mongodb:
+    image: 'mongo'
+    volumes: 
+      - data:/data/db
+    # for dev, we can hardcode each env var but for prod use env_file
+    environment: 
+      MONGO_INITDB_ROOT_USERNAME: user
+      MONGO_INITDB_ROOT_PASSWORD: password
   backend:
     build: ./backend
     ports:
       - '80:80'
-    volumes:
+    volumes: 
+      - logs:/app/logs
       - ./backend:/app
       - /app/node_modules
-    env_file:
-      - ./env/backend.env
+    environment: 
+      NODE_ENV: development
+      MONGODB_USERNAME: user
+      MONGODB_PASSWORD: password
+      # mongodb refers to our mongodb service
+      MONGODB_URL: mongodb:27017
+      MONGODB_NAME: my-db
+    depends_on:
+      - mongodb
   frontend:
     build: ./frontend
-    ports:
+    ports: 
       - '3000:3000'
-    volumes:
+      # instantly reflect changes when source code is updated
+    volumes: 
       - ./frontend/src:/app/src
+    # -it
     stdin_open: true
     tty: true
-    depends_on:
+    # only start frontend once backend container is up and running
+    depends_on: 
       - backend
+
+# have to list all the named volumes you are using in your services:
+volumes: 
+  data:
+  logs:
