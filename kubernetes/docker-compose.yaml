@@ -1,0 +1,23 @@
+version: "3"
+services:
+  auth:
+    build: ./auth-api
+    ports:
+      - '8000:3000'
+    environment:
+      TOKEN_KEY: 'shouldbeverysecure'
+  users:
+    build: ./users-api
+    ports:
+      - '8080:3000'
+    environment:
+      MONGODB_CONNECTION_URI: 'mongodb+srv://maximilian:wk4nFupsbntPbB3l@cluster0.ntrwp.mongodb.net/users?retryWrites=true&w=majority'
+      # when running containers with docker compose, use the domain provided by docker compose's networking system rather than k8s. However, we should really start our containers locally with k8s instead of docker compose (use skaffold instead)
+      AUTH_API_ADDRESS: 'auth:3000'
+  tasks:
+    build: ./tasks-api
+    ports:
+      - '3000:3000'
+    environment:
+      MONGODB_CONNECTION_URI: 'mongodb+srv://maximilian:wk4nFupsbntPbB3l@cluster0.ntrwp.mongodb.net/users?retryWrites=true&w=majority'
+      AUTH_API_ADDRESS: 'auth:3000'
